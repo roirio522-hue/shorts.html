@@ -3,108 +3,111 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Auto Shorts - Mobile Fix</title>
+    <title>Shorts Maker Mobile Fix</title>
     <script src="https://unpkg.com/@ffmpeg/ffmpeg@0.10.1/dist/ffmpeg.min.js"></script>
     <style>
-        body { font-family: sans-serif; background: #1a1a1a; color: white; padding: 15px; text-align: center; }
-        .box { background: #262626; padding: 20px; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.5); }
-        input, select, button { width: 100%; margin: 10px 0; padding: 12px; border-radius: 8px; border: none; }
-        button { background: #0084ff; color: white; font-weight: bold; cursor: pointer; }
-        button:disabled { background: #444; }
-        #status { font-size: 13px; color: #aaa; margin: 10px 0; background: #000; padding: 10px; border-radius: 5px; min-height: 40px; text-align: left; overflow: hidden;}
-        video { width: 100%; border-radius: 10px; margin-top: 15px; border: 1px solid #333; }
-        .download-btn { background: #28a745; text-decoration: none; display: block; padding: 10px; border-radius: 8px; color: white; margin-top: 5px; font-size: 14px; }
+        body { font-family: sans-serif; background: #000; color: #fff; padding: 15px; text-align: center; }
+        .card { background: #1a1a1a; padding: 25px; border-radius: 20px; border: 1px solid #333; max-width: 400px; margin: auto; }
+        input, select, button { width: 100%; margin: 10px 0; padding: 12px; border-radius: 10px; border: none; font-size: 16px; }
+        button { background: #007bff; color: white; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        button:disabled { background: #444; color: #888; }
+        #status-box { background: #000; padding: 10px; border-radius: 8px; font-size: 13px; color: #0f0; margin-top: 15px; min-height: 50px; text-align: left; border: 1px solid #222; }
+        video { width: 100%; border-radius: 10px; margin-top: 20px; border: 1px solid #444; }
+        .dl-link { display: block; background: #28a745; color: white; padding: 10px; border-radius: 8px; text-decoration: none; margin-top: 5px; font-weight: bold; }
     </style>
 </head>
 <body>
 
-<div class="box">
-    <h3>🎬 Shorts Maker (Mobile)</h3>
-    <input type="file" id="video-input" accept="video/*">
+<div class="card">
+    <h3>🎬 Shorts Maker Pro</h3>
+    <p style="font-size: 12px; color: #888;">ফোনে ব্যবহারের জন্য বিশেষ ভার্সন</p>
+    
+    <input type="file" id="video-file" accept="video/*">
     
     <div style="display: flex; gap: 10px;">
-        <select id="clip-dur">
+        <select id="duration">
             <option value="5">৫ সেকেন্ড</option>
             <option value="10">১০ সেকেন্ড</option>
         </select>
-        <input type="number" id="clip-qty" value="1" min="1" max="3" style="width: 60px; padding: 10px;">
+        <input type="number" id="count" value="1" min="1" max="3" style="width: 60px; padding: 10px;">
     </div>
 
-    <button id="start-btn">এডিট শুরু করুন</button>
-    <div id="status">স্ট্যাটাস: রেডি...</div>
-    <div id="output-list"></div>
+    <button id="run-btn">ম্যাজিক এডিট শুরু করুন</button>
+    
+    <div id="status-box">স্ট্যাটাস: রেডি...</div>
+    <div id="result"></div>
 </div>
 
 <script>
     const { createFFmpeg, fetchFile } = FFmpeg;
-    // এখানে corePath ব্যবহার করে single-thread ভার্সন লোড করছি
+    // এখানে corePath নির্দিষ্ট করে দেওয়া হয়েছে যা সিঙ্গেল থ্রেড মোডে চলে
     const ffmpeg = createFFmpeg({ 
         log: true,
-        corePath: 'https://unpkg.com/@ffmpeg/core@0.10.0/dist/ffmpeg-core.js'
+        corePath: 'https://unpkg.com/@ffmpeg/core@0.10.0/dist/ffmpeg-core.js' 
     });
 
-    const log = (msg) => { document.getElementById('status').innerText = msg; };
+    const status = document.getElementById('status-box');
+    const updateStatus = (msg) => { status.innerText = `> ${msg}`; };
 
-    document.getElementById('start-btn').onclick = async () => {
-        const file = document.getElementById('video-input').files[0];
-        if (!file) return alert("ফাইল সিলেক্ট করুন!");
+    document.getElementById('run-btn').onclick = async () => {
+        const file = document.getElementById('video-file').files[0];
+        if (!file) return alert("ভিডিও ফাইলটি সিলেক্ট করো!");
 
-        const btn = document.getElementById('start-btn');
-        const duration = document.getElementById('clip-dur').value;
-        const count = document.getElementById('clip-qty').value;
-        
+        const dur = parseInt(document.getElementById('duration').value);
+        const qty = parseInt(document.getElementById('count').value);
+        const btn = document.getElementById('run-btn');
+
         btn.disabled = true;
-        
+        updateStatus("ইঞ্জিন লোড হচ্ছে (একটু সময় লাগবে)...");
+
         try {
-            if (!ffmpeg.isLoaded()) {
-                log("ইঞ্জিন লোড হচ্ছে (একবারই হবে)...");
-                await ffmpeg.load();
-            }
+            if (!ffmpeg.isLoaded()) await ffmpeg.load();
 
-            log("ভিডিও প্রসেস শুরু হচ্ছে...");
-            ffmpeg.FS('writeFile', 'input.mp4', await fetchFile(file));
+            updateStatus("ফাইল রিড করা হচ্ছে...");
+            ffmpeg.FS('writeFile', 'input_vid.mp4', await fetchFile(file));
 
-            // ভিডিওর দৈর্ঘ্য বের করার জন্য ছোট এলিমেন্ট
-            const vTemp = document.createElement('video');
-            vTemp.src = URL.createObjectURL(file);
+            // ভিডিওর মোট দৈর্ঘ্য জানতে একটি অদৃশ্য ভিডিও এলিমেন্ট
+            const tempVid = document.createElement('video');
+            tempVid.src = URL.createObjectURL(file);
             
-            vTemp.onloadedmetadata = async () => {
-                const total = vTemp.duration;
-                document.getElementById('output-list').innerHTML = '';
+            tempVid.onloadedmetadata = async () => {
+                const totalDur = tempVid.duration;
+                document.getElementById('result').innerHTML = '';
 
-                for(let i=0; i<count; i++) {
-                    const start = Math.floor(Math.random() * (total - duration));
-                    const out = `short_${i}.mp4`;
-                    
-                    log(`ক্লিপ ${i+1}/${count} তৈরি হচ্ছে... (ধৈর্য ধরুন)`);
+                for (let i = 0; i < qty; i++) {
+                    const startPos = Math.floor(Math.random() * (totalDur - dur));
+                    const outFileName = `short_video_${i + 1}.mp4`;
 
-                    // ফোনের জন্য সবথেকে হালকা কমান্ড
+                    updateStatus(`ক্লিপ ${i + 1}/${qty} তৈরি হচ্ছে... ধৈর্য ধরুন।`);
+
+                    // ফোনের জন্য সবথেকে লাইট কমান্ড
                     await ffmpeg.run(
-                        '-ss', `${start}`,
-                        '-i', 'input.mp4',
-                        '-t', `${duration}`,
-                        '-vf', 'crop=ih*9/16:ih,scale=360:640', // রেজোলিউশন আরও কমানো হয়েছে যাতে ফাস্ট হয়
+                        '-ss', `${startPos}`,
+                        '-i', 'input_vid.mp4',
+                        '-t', `${dur}`,
+                        '-vf', 'crop=ih*9/16:ih,scale=360:640', // ফোনের জন্য ৩৬০পি রেজোলিউশন (ফাস্ট হবে)
                         '-c:v', 'libx264',
                         '-preset', 'ultrafast',
-                        out
+                        outFileName
                     );
 
-                    const data = ffmpeg.FS('readFile', out);
+                    const data = ffmpeg.FS('readFile', outFileName);
                     const url = URL.createObjectURL(new Blob([data.buffer], { type: 'video/mp4' }));
 
                     const div = document.createElement('div');
                     div.innerHTML = `
                         <video src="${url}" controls></video>
-                        <a href="${url}" download="${out}" class="download-btn">ডাউনলোড শর্টস ${i+1}</a>
+                        <a href="${url}" download="${outFileName}" class="dl-link">ডাউনলোড শর্টস ${i+1}</a>
                     `;
-                    document.getElementById('output-list').appendChild(div);
+                    document.getElementById('result').appendChild(div);
                 }
-                
-                log("✅ কাজ শেষ! নিচে ডাউনলোড লিঙ্ক দেখুন।");
+
+                updateStatus("✅ অভিনন্দন! এডিটিং সফল হয়েছে।");
                 btn.disabled = false;
             };
-        } catch (e) {
-            log("❌ এরর: " + e.message);
+        } catch (err) {
+            updateStatus("❌ এরর: " + err.message);
+            console.error(err);
             btn.disabled = false;
         }
     };
