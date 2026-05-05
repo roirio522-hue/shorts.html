@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Auto Shorts - Mobile Fix</title>
+    <script src="https://unpkg.com/@ffmpeg/ffmpeg@0.10.1/dist/ffmpeg.min.js"></script>
+    <style>
+        body { font-family: sans-serif; background: #1a1a1a; color: white; padding: 15px; text-align: center; }
+        .box { background: #262626; padding: 20px; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.5); }
+        input, select, button { width: 100%; margin: 10px 0; padding: 12px; border-radius: 8px; border: none; }
+        button { background: #0084ff; color: white; font-weight: bold; cursor: pointer; }
+        button:disabled { background: #444; }
+        #status { font-size: 13px; color: #aaa; margin: 10px 0; background: #000; padding: 10px; border-radius: 5px; min-height: 40px; text-align: left; overflow: hidden;}
+        video { width: 100%; border-radius: 10px; margin-top: 15px; border: 1px solid #333; }
+        .download-btn { background: #28a745; text-decoration: none; display: block; padding: 10px; border-radius: 8px; color: white; margin-top: 5px; font-size: 14px; }
+    </style>
+</head>
+<body>
+
+<div class="box">
+    <h3>🎬 Shorts Maker (Mobile)</h3>
+    <input type="file" id="video-input" accept="video/*">
+    
+    <div style="display: flex; gap: 10px;">
+        <select id="clip-dur">
+            <option value="5">৫ সেকেন্ড</option>
+            <option value="10">১০ সেকেন্ড</option>
+        </select>
+        <input type="number" id="clip-qty" value="1" min="1" max="3" style="width: 60px; padding: 10px;">
+    </div>
+
+    <button id="start-btn">এডিট শুরু করুন</button>
+    <div id="status">স্ট্যাটাস: রেডি...</div>
+    <div id="output-list"></div>
+</div>
+
+<script>
+    const { createFFmpeg, fetchFile } = FFmpeg;
+    // এখানে corePath ব্যবহার করে single-thread ভার্সন লোড করছি
+    const ffmpeg = createFFmpeg({ 
+        log: true,
+        corePath: 'https://unpkg.com/@ffmpeg/core@0.10.0/dist/ffmpeg-core.js'
+    });
+
+    const log = (msg) => { document.getElementById('status').innerText = msg; };
+
+    document.getElementById('start-btn').onclick = async () => {
+        const file = document.getElementById('video-input').files[0];
+        if (!file) return alert("ফাইল সিলেক্ট করুন!");
+
+        const btn = document.getElementById('start-btn');
+        const duration = document.getElementById('clip-dur').value;
+        const count = document.getElementById('clip-qty').value;
+        
+        btn.disabled = true;
+        
+        try {
+            if (!ffmpeg.isLoaded()) {
+                log("ইঞ্জিন লোড হচ্ছে (একবারই হবে)...");
+                await ffmpeg.load();
+            }
+
+            log("ভিডিও প্রসেস শুরু হচ্ছে...");
+            ffmpeg.FS('writeFile', 'input.mp4', await fetchFile(file));
+
+            // ভিডিওর দৈর্ঘ্য বের করার জন্য ছোট এলিমেন্ট
+            const vTemp = document.createElement('video');
+            vTemp.src = URL.createObjectURL(file);
+            
+            vTemp.onloadedmetadata = async () => {
+                const total = vTemp.duration;
+                document.getElementById('output-list').innerHTML = '';
+
+                for(let i=0; i<count; i++) {
+                    const start = Math.floor(Math.random() * (total - duration));
+                    const out = `short_${i}.mp4`;
+                    
+                    log(`ক্লিপ ${i+1}/${count} তৈরি হচ্ছে... (ধৈর্য ধরুন)`);
+
+                    // ফোনের জন্য সবথেকে হালকা কমান্ড
+                    await ffmpeg.run(
+                        '-ss', `${start}`,
+                        '-i', 'input.mp4',
+                        '-t', `${duration}`,
+                        '-vf', 'crop=ih*9/16:ih,scale=360:640', // রেজোলিউশন আরও কমানো হয়েছে যাতে ফাস্ট হয়
+                        '-c:v', 'libx264',
+                        '-preset', 'ultrafast',
+                        out
+                    );
+
+                    const data = ffmpeg.FS('readFile', out);
+                    const url = URL.createObjectURL(new Blob([data.buffer], { type: 'video/mp4' }));
+
+                    const div = document.createElement('div');
+                    div.innerHTML = `
+                        <video src="${url}" controls></video>
+                        <a href="${url}" download="${out}" class="download-btn">ডাউনলোড শর্টস ${i+1}</a>
+                    `;
+                    document.getElementById('output-list').appendChild(div);
+                }
+                
+                log("✅ কাজ শেষ! নিচে ডাউনলোড লিঙ্ক দেখুন।");
+                btn.disabled = false;
+            };
+        } catch (e) {
+            log("❌ এরর: " + e.message);
+            btn.disabled = false;
+        }
+    };
+</script>
+
+</body>
+</html>
