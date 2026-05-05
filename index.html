@@ -3,59 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Video Editor with Live Focus Preview</title>
+    <title>Pro Video Editor - Audio & Smart Zoom</title>
     <style>
-        :root { --primary: #00f2fe; --accent: #4facfe; --bg: #0b0e14; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: #fff; margin: 0; padding: 15px; text-align: center; overflow-x: hidden; }
+        :root { --primary: #00f2fe; --bg: #0b0e14; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: #fff; margin: 0; padding: 15px; text-align: center; }
         .app-card { max-width: 480px; margin: auto; background: #161b22; padding: 25px; border-radius: 24px; box-shadow: 0 10px 40px rgba(0,0,0,0.6); border: 1px solid #30363d; }
-        h2 { color: var(--primary); margin-bottom: 5px; font-weight: 600; }
-        p.subtitle { font-size: 13px; color: #8b949e; margin-bottom: 25px; }
-
+        h2 { color: var(--primary); margin-bottom: 20px; font-weight: 600; }
         .input-box { text-align: left; margin-bottom: 15px; }
-        label { font-size: 13px; color: #8b949e; margin-left: 5px; display: block; margin-bottom: 5px; }
-        input[type="file"], select, button { width: 100%; padding: 14px; border-radius: 12px; border: 1px solid #30363d; background: #0d1117; color: #fff; font-size: 15px; box-sizing: border-box; outline: none; }
-        input[type="number"] { width: auto; max-width: 70px; display: inline-block; padding: 10px; margin-left: 10px; }
-        
-        button { background: linear-gradient(45deg, var(--primary), var(--accent)); border: none; color: #000; font-weight: bold; cursor: pointer; transition: 0.3s; margin-top: 15px; font-size: 16px; }
-        button:active { transform: scale(0.98); }
-        button:disabled { background: #30363d; color: #8b949e; cursor: not-allowed; }
-
-        .progress-area { display: none; margin: 25px 0; }
-        .track { height: 8px; width: 100%; background: #30363d; border-radius: 10px; overflow: hidden; }
-        .bar-fill { height: 100%; width: 0%; background: var(--primary); box-shadow: 0 0 10px var(--primary); transition: 0.1s linear; }
-        #status { font-size: 14px; margin-top: 10px; color: #c9d1d9; }
-
+        label { font-size: 13px; color: #8b949e; margin-bottom: 5px; display: block; }
+        input, select, button { width: 100%; padding: 14px; border-radius: 12px; border: 1px solid #30363d; background: #0d1117; color: #fff; font-size: 15px; outline: none; box-sizing: border-box; }
+        button { background: linear-gradient(45deg, #00f2fe, #4facfe); border: none; color: #000; font-weight: bold; cursor: pointer; margin-top: 15px; }
+        button:disabled { background: #30363d; color: #8b949e; }
+        .progress-area { display: none; margin: 20px 0; }
+        .track { height: 8px; background: #30363d; border-radius: 10px; overflow: hidden; }
+        .bar-fill { height: 100%; width: 0%; background: var(--primary); transition: 0.1s linear; }
         .output-grid { margin-top: 30px; display: grid; gap: 20px; }
-        .clip-box { background: #21262d; padding: 15px; border-radius: 18px; border: 1px solid #30363d; text-align: left; }
-        video.clip-preview { width: 100%; border-radius: 10px; margin-bottom: 10px; }
-        .download-link { background: #238636; color: white; text-decoration: none; padding: 12px; border-radius: 10px; display: block; font-weight: bold; text-size: 14px; text-align: center; }
-
-        /* Focus Area Styles (Advanced) */
-        #focusArea { display: none; margin: 20px 0; border-top: 1px solid #30363d; padding-top: 20px; text-align: left; }
-        #focusCanvas { width: 100%; border-radius: 10px; background: #000; border: 2px solid var(--accent); margin-top: 10px; box-shadow: 0 0 15px rgba(79, 172, 254, 0.3); }
-        .focus-controls { margin-top: 15px; }
-        input[type="range"] { margin: 10px 0; width: 100%; cursor: pointer; appearance: none; background: #30363d; height: 10px; border-radius: 5px; outline: none; }
-        input[type="range"]::-webkit-slider-thumb { appearance: none; width: 22px; height: 22px; background: var(--accent); border-radius: 50%; cursor: pointer; border: 2px solid #fff; box-shadow: 0 0 5px rgba(0,0,0,0.5); }
-        
-        .temp-video-btns { display: flex; gap: 10px; margin-top: 10px; }
-        .temp-video-btns button { padding: 8px 12px; font-size: 12px; background: #21262d; border: 1px solid #30363d; margin-top: 0; color: #fff; font-weight: normal; }
-        .temp-video-btns button:active { background: #30363d; }
+        .clip-box { background: #21262d; padding: 15px; border-radius: 18px; border: 1px solid #30363d; }
+        video { width: 100%; border-radius: 10px; }
+        .download-link { background: #238636; color: white; text-decoration: none; padding: 12px; border-radius: 10px; display: block; margin-top: 10px; font-weight: bold; }
     </style>
 </head>
 <body>
 
 <div class="app-card">
-    <h2>🎬 Video Editor Pro</h2>
-    <p class="subtitle">Multi-Mode Editor with Live Focus Preview</p>
+    <h2>🎬 Sound & Smart Zoom Editor</h2>
     
     <div class="input-box">
         <label>ভিডিও ফাইল আপলোড করুন</label>
         <input type="file" id="videoInput" accept="video/*">
     </div>
 
-    <div style="display: flex; gap: 10px; align-items: flex-end;">
+    <div style="display: flex; gap: 10px;">
         <div class="input-box" style="flex: 1.5;">
-            <label>ভিডিওর মোড (Aspect Ratio)</label>
+            <label>মোড সিলেক্ট করুন</label>
             <select id="videoMode">
                 <option value="shorts">YouTube Shorts (9:16)</option>
                 <option value="long">Long Video (16:9)</option>
@@ -63,271 +43,88 @@
         </div>
         <div class="input-box" style="flex: 1;">
             <label>ক্লিপ সংখ্যা</label>
-            <input type="number" id="clipCount" value="5" min="1" max="10">
+            <input type="number" id="clipCount" value="3" min="1" max="10">
         </div>
     </div>
 
     <div class="input-box">
-        <label>ক্লিপের দৈর্ঘ্য (Duration)</label>
+        <label>ক্লিপের দৈর্ঘ্য</label>
         <select id="clipDuration">
-            <option value="5">৫ সেকেন্ড</option>
-            <option value="10">১০ সেকেন্ড</option>
-            <option value="15" selected>১৫ সেকেন্ড</option>
+            <option value="15">১৫ সেকেন্ড</option>
             <option value="30">৩০ সেকেন্ড</option>
             <option value="60">১ মিনিট</option>
         </select>
     </div>
 
-    <div id="focusArea">
-        <label>ক্লিপের লাইভ ফোকাস সেট করুন (চরিত্রটি যেখানে আছে):</label>
-        <canvas id="focusCanvas"></canvas>
-        <div class="focus-controls">
-            <input type="range" id="focusSlider" min="0" value="50" max="100">
-            <span style="font-size: 11px; color: #8b949e; display: block; text-align: center;">ডানে/বামে সরান (লাইভ প্রিভিউ দেখুন)</span>
-        </div>
-        
-        <div class="input-box temp-video-btns">
-            <label style="display:inline; margin-right: 10px; color: #cbd5e1;">ভিডিওর অন্য অংশ চেক করুন:</label>
-            <button id="vTempStart" type="button">শুরুতে</button>
-            <button id="vTempMid" type="button">মাঝখানে</button>
-            <button id="vTempEnd" type="button">শেষে</button>
-        </div>
-    </div>
-
-    <button id="startBtn" disabled>ভিডিও ফাইল দিন</button>
+    <button id="startBtn">সাউন্ডসহ এডিট শুরু করুন</button>
 
     <div class="progress-area" id="progressArea">
         <div class="track"><div class="bar-fill" id="barFill"></div></div>
-        <div id="status">প্রস্তুত হচ্ছে...</div>
+        <div id="status" style="font-size: 14px; margin-top: 10px;">প্রসেস হচ্ছে...</div>
     </div>
 
     <canvas id="exportCanvas" style="display:none;"></canvas>
-    <video id="hiddenVideo" muted style="display:none;" playsinline></video>
-    <video id="tempVideo" muted style="display:none;" playsinline></video> <div class="output-grid" id="outputGrid"></div>
+    <video id="hiddenVideo" style="display:none;" playsinline></video>
+    <div class="output-grid" id="outputGrid"></div>
 </div>
 
 <script>
-    // General Elements
     const videoInput = document.getElementById('videoInput');
     const startBtn = document.getElementById('startBtn');
     const barFill = document.getElementById('barFill');
     const progressArea = document.getElementById('progressArea');
     const status = document.getElementById('status');
     const hiddenVideo = document.getElementById('hiddenVideo');
-    const exportCanvas = document.getElementById('exportCanvas');
-    const exportCtx = exportCanvas.getContext('2d', { alpha: false });
+    const canvas = document.getElementById('exportCanvas');
+    const ctx = canvas.getContext('2d', { alpha: false });
     const outputGrid = document.getElementById('outputGrid');
-    const videoModeSelect = document.getElementById('videoMode');
-
-    // Focus Area Elements
-    const focusArea = document.getElementById('focusArea');
-    const focusCanvas = document.getElementById('focusCanvas');
-    const focusCtx = focusCanvas.getContext('2d', { alpha: false });
-    const focusSlider = document.getElementById('focusSlider');
-    const tempVideo = document.getElementById('tempVideo'); // Dedicated temporary video
-
-    // Focus Controls Buttons
-    const vTempStartBtn = document.getElementById('vTempStart');
-    const vTempMidBtn = document.getElementById('vTempMid');
-    const vTempEndBtn = document.getElementById('vTempEnd');
-
-    // State Variables for Cropping and Recording
-    let videoResolution = null;
-    let sxCoord = 0; // Source rect top-left X
-    let syCoord = 0; // Source rect top-left Y
-    let swidth = 0; // Source rect width
-    let sheight = 0; // Source rect height
-    let usedStarts = []; // To ensure distinct clips
-    let isLivePreviewRunning = false;
-
-    // --- initialization and File Handling ---
-
-    videoInput.onchange = (e) => {
-        const file = e.target.files[0];
-        if (!file) {
-            startBtn.disabled = true;
-            startBtn.innerText = "ভিডিও ফাইল দিন";
-            focusArea.style.display = 'none';
-            stopLivePreview();
-            return;
-        }
-        startBtn.disabled = true;
-        startBtn.innerText = "লোডিং...";
-        focusArea.style.display = 'block';
-        
-        // Load file into both videos (one for recording, one for checking)
-        const videoUrl = URL.createObjectURL(file);
-        hiddenVideo.src = videoUrl;
-        tempVideo.src = videoUrl;
-    };
-
-    // Prepare recording video and setup focus on temp video
-    hiddenVideo.onloadedmetadata = () => {
-        const file = videoInput.files[0];
-        if (!file) return;
-
-        // Initialize state, resolution and default focus
-        videoResolution = { width: hiddenVideo.videoWidth, height: hiddenVideo.videoHeight };
-        usedStarts = [];
-        updateCanvasAndSourceSizes();
-        
-        startBtn.disabled = false;
-        startBtn.innerText = "ভিন্ন ভিন্ন ক্লিপ এডিট শুরু করুন";
-    };
-
-    // Prepare temporary video for focus checks and start live preview
-    tempVideo.onloadedmetadata = () => {
-        // We ensure temp video seek is done and it's muted
-        tempVideo.currentTime = 0; 
-        vTempStartBtn.style.background = '#30363d'; // Default active btn
-
-        // Start the live preview on the focus canvas
-        startLivePreview();
-    };
-
-    videoModeSelect.onchange = () => {
-        const file = videoInput.files[0];
-        if (!file) return;
-        updateCanvasAndSourceSizes();
-        // Redraw focus frame, but live preview should already handle it
-        if (!isLivePreviewRunning) startLivePreview(); 
-    };
-
-    // --- Live Preview System (Manual Focus Control) ---
-
-    // Function to start drawing frames from the temporary video to the focus canvas
-    function startLivePreview() {
-        if (!tempVideo.src || isLivePreviewRunning) return;
-        isLivePreviewRunning = true;
-        status.innerText = "> লাইভ ফোকাস প্রিভিউ চালু হয়েছে। চরিত্রটিকে সেট করুন।";
-
-        function renderPreviewFrame() {
-            if (isLivePreviewRunning) {
-                focusCtx.drawImage(tempVideo, sxCoord, syCoord, swidth, sheight, 0, 0, focusCanvas.width, focusCanvas.height);
-                requestAnimationFrame(renderPreviewFrame);
-            }
-        }
-        renderPreviewFrame();
-    }
-
-    function stopLivePreview() {
-        isLivePreviewRunning = false;
-        if (tempVideo.paused) return;
-        tempVideo.pause();
-    }
-
-    // Function to update dimensions based on video size and mode
-    function updateCanvasAndSourceSizes() {
-        const mode = videoModeSelect.value;
-        if (!videoResolution) return;
-
-        // Set Export and Focus canvas resolutions
-        if (mode === 'shorts') {
-            exportCanvas.width = 720; exportCanvas.height = 1280;
-            focusCanvas.width = 720; focusCanvas.height = 1280;
-        } else {
-            exportCanvas.width = 1280; exportCanvas.height = 720;
-            focusCanvas.width = 1280; focusCanvas.height = 720;
-        }
-
-        // Calculate source rectangle (swidth, sheight, default sxCoord, syCoord)
-        if (mode === 'shorts') {
-            swidth = videoResolution.height * (9/16);
-            sheight = videoResolution.height;
-            sxCoord = (videoResolution.width - swidth) / 2; // Default to center
-            syCoord = 0;
-            
-            // Setup Slider
-            focusSlider.disabled = false;
-            focusSlider.min = 0;
-            focusSlider.max = Math.max(0, videoResolution.width - swidth);
-            focusSlider.value = sxCoord;
-        } else {
-            swidth = videoResolution.width;
-            sheight = videoResolution.width * (9/16);
-            sxCoord = 0;
-            syCoord = (videoResolution.height - sheight) / 2; // Default to center
-            
-            // Slider not needed for X-focus in 16:9 Long Video, unless video is >16:9
-            focusSlider.disabled = true;
-            focusSlider.value = 50; // default
-        }
-    }
-
-    // Update sxCoord based on slider input (Real-time update)
-    focusSlider.oninput = () => {
-        const mode = videoModeSelect.value;
-        if (mode === 'shorts') {
-            sxCoord = parseInt(focusSlider.value);
-            // The live preview loop (requestAnimationFrame) will automatically pick this up
-        }
-    };
-
-    // Focus Control Buttons to check different parts of the temporary video
-    vTempStartBtn.onclick = () => { 
-        tempVideo.currentTime = 0; 
-        updateActiveTempBtn(vTempStartBtn);
-    };
-    vTempMidBtn.onclick = () => { 
-        if (tempVideo.duration) tempVideo.currentTime = tempVideo.duration / 2; 
-        updateActiveTempBtn(vTempMidBtn);
-    };
-    vTempEndBtn.onclick = () => { 
-        if (tempVideo.duration) tempVideo.currentTime = tempVideo.duration - 5; 
-        updateActiveTempBtn(vTempEndBtn);
-    };
-
-    function updateActiveTempBtn(activeBtn) {
-        // Simple UI update for active button
-        [vTempStartBtn, vTempMidBtn, vTempEndBtn].forEach(btn => btn.style.background = '#21262d');
-        activeBtn.style.background = '#30363d';
-    }
-
-    // --- Recording Process (Asynchronous Sequential Recording) ---
 
     startBtn.onclick = async () => {
         const file = videoInput.files[0];
-        if (!file) return alert("দয়া করে একটি ফাইল সিলেক্ট করুন!");
+        if (!file) return alert("ফাইল দিন!");
 
         const durationSec = parseInt(document.getElementById('clipDuration').value);
         const count = parseInt(document.getElementById('clipCount').value);
-        const mode = videoModeSelect.value;
+        const mode = document.getElementById('videoMode').value;
         
-        // Stop the live preview to save resources during recording
-        stopLivePreview();
+        if (mode === 'shorts') {
+            canvas.width = 720; canvas.height = 1280;
+        } else {
+            canvas.width = 1280; canvas.height = 720;
+        }
+
         startBtn.disabled = true;
         progressArea.style.display = 'block';
         outputGrid.innerHTML = '';
-        
+        hiddenVideo.src = URL.createObjectURL(file);
+
+        await new Promise(r => hiddenVideo.onloadedmetadata = r);
         const totalTime = hiddenVideo.duration;
-        usedStarts = []; // Reset for each new run
 
         for (let i = 0; i < count; i++) {
-            let startTime;
-            let attempts = 0;
-            
-            // Find distinct Start Time
-            do {
-                startTime = Math.random() * (totalTime - durationSec);
-                attempts++;
-            } while (usedStarts.some(s => Math.abs(s - startTime) < durationSec) && attempts < 30);
-            
-            if (attempts === 30) {
-                startTime = Math.random() * (totalTime - durationSec);
-            }
-            usedStarts.push(startTime);
-            
-            // Seek recording video to the specific part
+            const startTime = Math.random() * (totalTime - durationSec);
             hiddenVideo.currentTime = startTime;
             await new Promise(r => hiddenVideo.onseeked = r);
             
-            status.innerText = `ক্লিপ ${i + 1}/${count} রেকর্ডিং হচ্ছে... | ফোকাস X: ${Math.floor(sxCoord)}px | অংশ: ${Math.floor(startTime)}s`;
+            status.innerText = `ক্লিপ ${i + 1}/${count} সাউন্ডসহ রেকর্ড হচ্ছে...`;
             barFill.style.width = "0%";
 
-            const stream = exportCanvas.captureStream(60); // Smooth 60 FPS
-            const recorder = new MediaRecorder(stream, { 
+            // অডিও এবং ভিডিও ট্র্যাক একসাথে ধরা
+            const videoStream = canvas.captureStream(60);
+            const audioContext = new AudioContext();
+            const source = audioContext.createMediaElementSource(hiddenVideo);
+            const destination = audioContext.createMediaStreamDestination();
+            source.connect(destination);
+            source.connect(audioContext.destination); // স্পিকারে সাউন্ড শোনার জন্য
+
+            const combinedStream = new MediaStream([
+                ...videoStream.getVideoTracks(),
+                ...destination.stream.getAudioTracks()
+            ]);
+
+            const recorder = new MediaRecorder(combinedStream, { 
                 mimeType: 'video/webm;codecs=vp9',
-                videoBitsPerSecond: 8000000 // 8 Mbps quality
+                videoBitsPerSecond: 12000000 // বিটরেট বাড়ানো হয়েছে কোয়ালিটির জন্য
             });
             
             const chunks = [];
@@ -336,49 +133,53 @@
                 recorder.onstop = () => resolve(new Blob(chunks, { type: 'video/webm' }));
             });
 
-            // Start Recording and Playback
             recorder.start();
             await hiddenVideo.play();
 
-            // Frame-by-frame rendering with dynamic zoom and manual focus
-            const renderExportFrame = () => {
+            const renderFrame = () => {
                 if (!hiddenVideo.paused && !hiddenVideo.ended) {
-                    exportCtx.drawImage(hiddenVideo, sxCoord, syCoord, swidth, sheight, 0, 0, exportCanvas.width, exportCanvas.height);
+                    const vW = hiddenVideo.videoWidth;
+                    const vH = hiddenVideo.videoHeight;
+                    
+                    if (mode === 'shorts') {
+                        // স্মার্ট জুম (বেশি জুম আউট করা হয়েছে যাতে ছবি না ফাটে)
+                        const zoomFactor = 0.8; // ০.৮ মানে একটু জুম আউট
+                        const sw = (vH * (9/16)) / zoomFactor;
+                        const sh = vH / zoomFactor;
+                        const sx = (vW - sw) / 2;
+                        const sy = (vH - sh) / 2;
+                        ctx.drawImage(hiddenVideo, sx, sy, sw, sh, 0, 0, canvas.width, canvas.height);
+                    } else {
+                        ctx.drawImage(hiddenVideo, 0, 0, vW, vH, 0, 0, canvas.width, canvas.height);
+                    }
+                    
                     const progress = (hiddenVideo.currentTime - startTime) / durationSec;
                     barFill.style.width = Math.min(progress * 100, 100) + "%";
-                    requestAnimationFrame(renderExportFrame);
+                    requestAnimationFrame(renderFrame);
                 }
             };
-            renderExportFrame();
+            renderFrame();
 
-            // Record for the specified duration
             await new Promise(r => setTimeout(r, durationSec * 1000));
             
-            // Stop and Cleanup this clip
             hiddenVideo.pause();
             recorder.stop();
             const blob = await recordPromise;
             
-            // Show Output and Download Link
             const url = URL.createObjectURL(blob);
             const div = document.createElement('div');
             div.className = 'clip-box';
             div.innerHTML = `
-                <video src="${url}" controls class="clip-preview"></video>
-                <p style="font-size:11px; color:#94a3b8; margin:0;">মোড: ${mode.toUpperCase()} | অংশ: ${Math.floor(startTime)}s - ${Math.floor(startTime + durationSec)}s | ফোকাস X: ${Math.floor(sxCoord)}px</p>
-                <a href="${url}" download="${mode}_part_${i+1}.webm" class="download-link">⬇️ ডাউনলোড ক্লিপ ${i+1}</a>
+                <video src="${url}" controls></video>
+                <a href="${url}" download="Edit_${i+1}.webm" class="download-link">⬇️ ডাউনলোড ক্লিপ ${i+1}</a>
             `;
             outputGrid.appendChild(div);
-            barFill.style.width = "100%";
         }
         
-        status.innerText = "✅ সব ভিন্ন ভিন্ন এবং ফোকাসড ক্লিপ তৈরি শেষ!";
-        // Restart Live Preview after all recording is done
-        startLivePreview();
+        status.innerText = "✅ সাউন্ডসহ এডিটিং শেষ!";
         startBtn.disabled = false;
     };
 </script>
 
 </body>
 </html>
-
